@@ -1,3 +1,22 @@
 <resources>
-    <string name="app_name">CampingLight</string>
+    <string name="app_name">Camping Lights</string>
+    <string name="light_flicker">Flash</string>
+    <string name="waring">WARNING: Do not shine into eyes when camping lights is on!</string>
+    <string name="sos">SOS</string>
+    <string name="strobe">Super</string>
+    <string name="constant">Constant</string>
+    <string name="full">Full</string>
+    <string name="half">Half</string>
+    <string name="quarter">Quarter</string>
+    <string name="resume_info">WARNING: Do not shine into eyes when camping light is on!</string>
+    <string name="sure">SURE</string>
+    <string name="cancel">CANCEL</string>
+    <string name="help">Help</string>
+    <string name="help_info">1.Set the on-light duration in the upper left of the screen\n2.To turn on or off camping lights, you need to click on the corresponding icon</string>
+    <string name="time">No fixed time</string>
+    <string name="time_5">5 Minutes</string>
+    <string name="time_10">10 Minutes</string>
+    <string name="time_15">15 Minutes</string>
+    <string name="time_30">30 Minutes</string>
+    <string name="time_60">60 Minutes</string>
 </resources>

@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">露营灯</string>
+    <string name="light_flicker">闪烁</string>
+    <string name="waring">警告：露营灯打开后，请勿照射眼睛！</string>
+    <string name="sos">SOS</string>
+    <string name="strobe">爆闪</string>
+    <string name="constant">常亮</string>
+    <string name="full">全亮</string>
+    <string name="half">半亮</string>
+    <string name="quarter">微亮</string>
+    <string name="resume_info">警告：露营灯打开后，请勿照射眼睛！</string>
+    <string name="sure">确定</string>
+    <string name="cancel">取消</string>
+    <string name="help">帮助</string>
+    <string name="help_info">1.屏幕左上方设置灯亮时长\n2.打开关闭露营灯需要点击对应图标</string>
+    <string name="time">长亮</string>
+    <string name="time_5">5分钟</string>
+    <string name="time_10">10分钟</string>
+    <string name="time_15">15分钟</string>
+    <string name="time_30">30分钟</string>
+    <string name="time_60">60分钟</string>
+</resources>
