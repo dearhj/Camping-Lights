@@ -1,14 +1,16 @@
 package com.android.campinglight
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import java.io.BufferedReader
-import java.io.BufferedWriter
+import com.android.campinglight.App.Companion.sp
 import java.io.File
-import java.io.FileReader
-import java.io.FileWriter
+
 
 class MainActivity : AppCompatActivity() {
     private var sosButton: ImageButton? = null
@@ -19,10 +21,25 @@ class MainActivity : AppCompatActivity() {
     private var helpButton: ImageButton? = null
     private var timeButton: ImageButton? = null
     private var status = ""
+    private lateinit var alarmManager: AlarmManager
+    private lateinit var intent: Intent
+    private lateinit var pendingIntent: PendingIntent
+
+    @SuppressLint("ScheduleExactAlarm")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+        alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        intent = Intent(this, TimeReceiver::class.java)
+        pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        offFlag.observe(this) {
+            if (it) {
+                offFlag.value = false
+                status = "OFF"
+                updateUI(status)
+            }
+        }
         sosButton = findViewById(R.id.btn_flash_sos)
         superButton = findViewById(R.id.btn_flash_super)
         fullButton = findViewById(R.id.btn_constant_full)
@@ -89,8 +106,14 @@ class MainActivity : AppCompatActivity() {
             showTipDialog(this, getString(R.string.help), getString(R.string.help_info))
         }
         timeButton?.setOnClickListener {
-            showTimeDialog(this, "15") {
-                println("这里选中的数是   $it")
+            val time = sp?.getString("time", "")
+            showTimeDialog(this, "${if (time == "") "0" else time}") {
+                sp?.edit()?.putString("time", it)?.apply()
+                alarmManager.cancel(pendingIntent)
+                if (it != "0" && status != "" && status != "OFF") {
+                    val triggerAtMillis = System.currentTimeMillis() + 10000 * it.toInt()
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+                }
             }
         }
     }
@@ -102,14 +125,23 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
     private fun initView() {
         status = File("/sys/devices/platform/gftk_camplight/camplight_mode").readText()
-        updateUI(status)
+        updateUI(status, true)
     }
 
-    private fun updateUI(uiStatus: String) {
+    @SuppressLint("ScheduleExactAlarm")
+    private fun updateUI(uiStatus: String, isInitView: Boolean = false) {
+        if (!isInitView) {
+            if (uiStatus != "OFF") {
+                alarmManager.cancel(pendingIntent)
+                val time = sp?.getString("time", "")
+                if (time != "" && time != "0") {
+                    val triggerAtMillis = System.currentTimeMillis() + 10000 * (time?.toInt() ?: 0)
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+                }
+            } else alarmManager.cancel(pendingIntent)
+        }
         when (uiStatus) {
             "LOW" -> {
                 quarterButton?.setBackgroundResource(R.drawable.constant_light_quarter_pressed)
@@ -158,39 +190,6 @@ class MainActivity : AppCompatActivity() {
                 superButton?.setBackgroundResource(R.drawable.flash_super_default)
                 sosButton?.setBackgroundResource(R.drawable.flash_sos_default)
             }
-        }
-    }
-
-
-    private fun File.write(content: String): Boolean {
-        return try {
-            val writer = BufferedWriter(FileWriter(this, false))
-            writer.write(content)
-            writer.flush()
-            writer.close()
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
-    }
-
-    private fun File.readText(): String {
-        return try {
-            val reader = BufferedReader(FileReader(this))
-            val stringBuilder = StringBuilder()
-            var line: String?
-            while (reader.readLine().also { line = it } != null) {
-                stringBuilder.append(line).append("\n")
-            }
-            reader.close()
-            if (stringBuilder.isNotEmpty() && stringBuilder.last() == '\n') {
-                stringBuilder.deleteCharAt(stringBuilder.lastIndex)
-            }
-            stringBuilder.toString()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            ""
         }
     }
 

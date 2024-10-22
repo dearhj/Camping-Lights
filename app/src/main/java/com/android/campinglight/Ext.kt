@@ -6,7 +6,15 @@ import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.lifecycle.MutableLiveData
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileReader
+import java.io.FileWriter
 
+
+var offFlag = MutableLiveData(false)
 
 fun showTipDialog(
     context: Context,
@@ -54,4 +62,36 @@ fun showTimeDialog(context: Context, choose: String, result: (String) -> Unit) {
     ComDialog.setPositiveButton(context.getString(R.string.sure)) { _, _ -> result(time) }
     ComDialog.setNegativeButton(context.getString(R.string.cancel)) { _, _ -> }
     ComDialog.dialogShow()
+}
+
+fun File.write(content: String): Boolean {
+    return try {
+        val writer = BufferedWriter(FileWriter(this, false))
+        writer.write(content)
+        writer.flush()
+        writer.close()
+        true
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
+}
+
+fun File.readText(): String {
+    return try {
+        val reader = BufferedReader(FileReader(this))
+        val stringBuilder = StringBuilder()
+        var line: String?
+        while (reader.readLine().also { line = it } != null) {
+            stringBuilder.append(line).append("\n")
+        }
+        reader.close()
+        if (stringBuilder.isNotEmpty() && stringBuilder.last() == '\n') {
+            stringBuilder.deleteCharAt(stringBuilder.lastIndex)
+        }
+        stringBuilder.toString()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        ""
+    }
 }
