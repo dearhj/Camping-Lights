@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                 sp?.edit()?.putString("time", it)?.apply()
                 alarmManager.cancel(pendingIntent)
                 if (it != "0" && status != "" && status != "OFF") {
-                    val triggerAtMillis = System.currentTimeMillis() + 10000 * it.toInt()
+                    val triggerAtMillis = System.currentTimeMillis() + 60000 * it.toInt()
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
                 }
             }
@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                 alarmManager.cancel(pendingIntent)
                 val time = sp?.getString("time", "")
                 if (time != "" && time != "0") {
-                    val triggerAtMillis = System.currentTimeMillis() + 10000 * (time?.toInt() ?: 0)
+                    val triggerAtMillis = System.currentTimeMillis() + 60000 * (time?.toInt() ?: 0)
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
                 }
             } else alarmManager.cancel(pendingIntent)
