@@ -48,59 +48,64 @@ class MainActivity : AppCompatActivity() {
         helpButton = findViewById(R.id.btn_settings_help)
         timeButton = findViewById(R.id.btn_settings_time)
         sosButton?.setOnClickListener {
-            val result: Boolean
-            if (status == "SOS") {
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
-                if (result) status = "OFF"
-            } else {
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("5")
-                if (result) status = "SOS"
+            var result: Boolean
+            result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+            if (result) {
+                if (status == "SOS") status = "OFF"
+                else {
+                    result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("5")
+                    if (result) status = "SOS"
+                }
+                updateUI(status)
             }
-            if (result) updateUI(status)
         }
         superButton?.setOnClickListener {
-            val result: Boolean
-            if (status == "BLINK") {
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
-                if (result) status = "OFF"
-            } else {
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("4")
-                if (result) status = "BLINK"
+            var result: Boolean
+            result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+            if (result) {
+                if (status == "BLINK") status = "OFF"
+                else {
+                    result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("4")
+                    if (result) status = "BLINK"
+                }
+                updateUI(status)
             }
-            if (result) updateUI(status)
         }
         fullButton?.setOnClickListener {
-            val result: Boolean
-            if (status == "HIGH") {
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
-                if (result) status = "OFF"
-            } else {
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("3")
-                if (result) status = "HIGH"
+            var result: Boolean
+            result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+            if (result) {
+                if (status == "HIGH") status = "OFF"
+                else {
+                    result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("3")
+                    if (result) status = "HIGH"
+                }
+                updateUI(status)
             }
-            if (result) updateUI(status)
         }
         halfButton?.setOnClickListener {
-            val result: Boolean
-            if (status == "NORMAL") {
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
-                if (result) status = "OFF"
-            } else {
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("2")
-                if (result) status = "NORMAL"
+            var result: Boolean
+            result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+            if (result) {
+                if (status == "NORMAL") status = "OFF"
+                else {
+                    result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("2")
+                    if (result) status = "NORMAL"
+                }
+                updateUI(status)
             }
-            if (result) updateUI(status)
         }
         quarterButton?.setOnClickListener {
-            val result: Boolean
-            if (status == "LOW") {
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
-                if (result) status = "OFF"
-            } else {
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("1")
-                if (result) status = "LOW"
+            var result: Boolean
+            result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+            if (result) {
+                if (status == "LOW") status = "OFF"
+                else {
+                    result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("1")
+                    if (result) status = "LOW"
+                }
+                updateUI(status)
             }
-            if (result) updateUI(status)
         }
         helpButton?.setOnClickListener {
             showTipDialog(this, getString(R.string.help), getString(R.string.help_info))

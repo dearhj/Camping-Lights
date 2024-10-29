@@ -9,10 +9,10 @@ android {
 
     defaultConfig {
         applicationId = "com.android.campinglight"
-        minSdk = 24
+        minSdk = 32
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 11
+        versionName = "1.1"
     }
 
     signingConfigs {
