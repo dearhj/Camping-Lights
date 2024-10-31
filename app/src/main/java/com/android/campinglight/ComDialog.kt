@@ -46,11 +46,14 @@ object ComDialog {
         return mDialog?.isShowing ?: false
     }
 
-    fun dialogClose() {
-        val alertDialog = mDialog
-        if (alertDialog != null) {
-            alertDialog.dismiss()
-            mDialog = null
+    private fun dialogClose() {
+        try {
+            val alertDialog = mDialog
+            if (alertDialog != null) {
+                alertDialog.dismiss()
+                mDialog = null
+            }
+        } catch (_: Exception) {
         }
     }
 }

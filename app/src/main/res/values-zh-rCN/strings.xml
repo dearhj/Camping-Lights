@@ -8,10 +8,12 @@
     <string name="full">全亮</string>
     <string name="half">半亮</string>
     <string name="quarter">微亮</string>
-    <string name="resume_info">警告：露营灯打开后，请勿照射眼睛！</string>
+    <string name="resume_info">露营灯打开后，请勿照射眼睛</string>
     <string name="sure">确定</string>
     <string name="cancel">取消</string>
     <string name="help">帮助</string>
+    <string name="tips">低电量提示</string>
+    <string name="batteryInfo">电池剩余电量小于15%，无法使用露营灯！</string>
     <string name="help_info">1.屏幕左上方设置灯亮时长\n2.打开关闭露营灯需要点击对应图标</string>
     <string name="time">长亮</string>
     <string name="time_5">5分钟</string>

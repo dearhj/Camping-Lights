@@ -3,12 +3,17 @@ package com.android.campinglight
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.os.BatteryManager
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.android.campinglight.App.Companion.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 
@@ -24,12 +29,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var alarmManager: AlarmManager
     private lateinit var intent: Intent
     private lateinit var pendingIntent: PendingIntent
+    private var batteryValue = 0
+    private var batteryLevel15 = false
+    private var batteryManager: BatteryManager? = null
 
     @SuppressLint("ScheduleExactAlarm")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         setContentView(R.layout.activity_main)
+        val level = batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: 0
+        if (level <= 15) {
+            batteryLevel15 = true
+            MainScope().launch(Dispatchers.IO) {
+                File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+            }
+            status = "OFF"
+            showDialog(this@MainActivity, getString(R.string.tips), getString(R.string.batteryInfo))
+        }
+
         alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         intent = Intent(this, TimeReceiver::class.java)
         pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
@@ -40,6 +59,25 @@ class MainActivity : AppCompatActivity() {
                 updateUI(status)
             }
         }
+
+        setSendChangeString {
+            MainScope().launch(Dispatchers.Main) {
+                batteryValue = it.toInt()
+                if (batteryValue <= 15) {
+                    batteryLevel15 = true
+                    if (status != "OFF") {
+                        status = "OFF"
+                        updateUI(status)
+                        showDialog(
+                            this@MainActivity,
+                            getString(R.string.tips),
+                            getString(R.string.batteryInfo)
+                        )
+                    }
+                } else batteryLevel15 = false
+            }
+        }
+        startForegroundService(Intent(this, LightControlService::class.java))
         sosButton = findViewById(R.id.btn_flash_sos)
         superButton = findViewById(R.id.btn_flash_super)
         fullButton = findViewById(R.id.btn_constant_full)
@@ -48,63 +86,83 @@ class MainActivity : AppCompatActivity() {
         helpButton = findViewById(R.id.btn_settings_help)
         timeButton = findViewById(R.id.btn_settings_time)
         sosButton?.setOnClickListener {
-            var result: Boolean
-            result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
-            if (result) {
-                if (status == "SOS") status = "OFF"
-                else {
-                    result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("5")
-                    if (result) status = "SOS"
+            if (batteryLevel15) toast(getString(R.string.batteryInfo), this)
+            else {
+                var result: Boolean
+                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+                if (result) {
+                    if (status == "SOS") status = "OFF"
+                    else {
+                        result =
+                            File("/sys/devices/platform/gftk_camplight/camplight_mode").write("5")
+                        if (result) status = "SOS"
+                    }
+                    updateUI(status)
                 }
-                updateUI(status)
             }
         }
         superButton?.setOnClickListener {
-            var result: Boolean
-            result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
-            if (result) {
-                if (status == "BLINK") status = "OFF"
-                else {
-                    result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("4")
-                    if (result) status = "BLINK"
+            if (batteryLevel15) toast(getString(R.string.batteryInfo), this)
+            else {
+                var result: Boolean
+                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+                if (result) {
+                    if (status == "BLINK") status = "OFF"
+                    else {
+                        result =
+                            File("/sys/devices/platform/gftk_camplight/camplight_mode").write("4")
+                        if (result) status = "BLINK"
+                    }
+                    updateUI(status)
                 }
-                updateUI(status)
             }
         }
         fullButton?.setOnClickListener {
-            var result: Boolean
-            result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
-            if (result) {
-                if (status == "HIGH") status = "OFF"
-                else {
-                    result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("3")
-                    if (result) status = "HIGH"
+            if (batteryLevel15) toast(getString(R.string.batteryInfo), this)
+            else {
+                var result: Boolean
+                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+                if (result) {
+                    if (status == "HIGH") status = "OFF"
+                    else {
+                        result =
+                            File("/sys/devices/platform/gftk_camplight/camplight_mode").write("3")
+                        if (result) status = "HIGH"
+                    }
+                    updateUI(status)
                 }
-                updateUI(status)
             }
         }
         halfButton?.setOnClickListener {
-            var result: Boolean
-            result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
-            if (result) {
-                if (status == "NORMAL") status = "OFF"
-                else {
-                    result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("2")
-                    if (result) status = "NORMAL"
+            if (batteryLevel15) toast(getString(R.string.batteryInfo), this)
+            else {
+                var result: Boolean
+                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+                if (result) {
+                    if (status == "NORMAL") status = "OFF"
+                    else {
+                        result =
+                            File("/sys/devices/platform/gftk_camplight/camplight_mode").write("2")
+                        if (result) status = "NORMAL"
+                    }
+                    updateUI(status)
                 }
-                updateUI(status)
             }
         }
         quarterButton?.setOnClickListener {
-            var result: Boolean
-            result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
-            if (result) {
-                if (status == "LOW") status = "OFF"
-                else {
-                    result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("1")
-                    if (result) status = "LOW"
+            if (batteryLevel15) toast(getString(R.string.batteryInfo), this)
+            else {
+                var result: Boolean
+                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+                if (result) {
+                    if (status == "LOW") status = "OFF"
+                    else {
+                        result =
+                            File("/sys/devices/platform/gftk_camplight/camplight_mode").write("1")
+                        if (result) status = "LOW"
+                    }
+                    updateUI(status)
                 }
-                updateUI(status)
             }
         }
         helpButton?.setOnClickListener {
@@ -126,7 +184,11 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         initView()
-        showTipDialog(this, getString(R.string.app_name), getString(R.string.resume_info))
+        if (!batteryLevel15) showTipDialog(
+            this,
+            getString(R.string.app_name),
+            getString(R.string.waring)
+        )
     }
 
 

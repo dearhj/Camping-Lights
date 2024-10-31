@@ -1,20 +1,37 @@
 package com.android.campinglight
 
+import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
+import kotlin.properties.Delegates
 
 
 var offFlag = MutableLiveData(false)
+
+var dialog: AlertDialog? = null
+fun showDialog(
+    context: Context,
+    title: String,
+    content: String,
+) {
+    if (dialog?.isShowing == true) dialog?.dismiss()
+    dialog = AlertDialog.Builder(context)
+        .setTitle(title)
+        .setMessage(content)
+        .create()
+    dialog?.show()
+}
 
 fun showTipDialog(
     context: Context,
@@ -62,6 +79,31 @@ fun showTimeDialog(context: Context, choose: String, result: (String) -> Unit) {
     ComDialog.setPositiveButton(context.getString(R.string.sure)) { _, _ -> result(time) }
     ComDialog.setNegativeButton(context.getString(R.string.cancel)) { _, _ -> }
     ComDialog.dialogShow()
+}
+
+var change: Change? = null
+
+interface Change {
+    fun change(string: String)
+}
+
+var changeStatus: String by Delegates.observable("") { _, _, new ->
+    change?.change(new)
+}
+
+fun setSendChangeString(ch: (str: String) -> Unit) {
+    change = object : Change {
+        override fun change(str: String) {
+            ch(str)
+        }
+    }
+}
+
+var toast: Toast? = null
+fun toast(msg: String, context: Context) {
+    if (toast != null) toast?.cancel()
+    toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT)
+    toast?.show()
 }
 
 fun File.write(content: String): Boolean {

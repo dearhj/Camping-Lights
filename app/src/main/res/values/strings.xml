@@ -8,10 +8,12 @@
     <string name="full">Full</string>
     <string name="half">Half</string>
     <string name="quarter">Quarter</string>
-    <string name="resume_info">WARNING: Do not shine into eyes when camping light is on!</string>
+    <string name="resume_info">Do not shine into eyes when camping light is on</string>
     <string name="sure">SURE</string>
     <string name="cancel">CANCEL</string>
     <string name="help">Help</string>
+    <string name="tips">Low battery reminder</string>
+    <string name="batteryInfo">The remaining battery level is less than 15%, and the camping light cannot be used!</string>
     <string name="help_info">1.Set the on-light duration in the upper left of the screen\n2.To turn on or off camping lights, you need to click on the corresponding icon</string>
     <string name="time">No fixed time</string>
     <string name="time_5">5 Minutes</string>
