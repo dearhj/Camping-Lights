@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.BatteryManager
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -212,6 +213,9 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun initView() {
+        val mode = Settings.Secure.getInt(contentResolver, "navigation_mode")
+        if (mode == 0) findViewById<View>(R.id.tip_view).visibility = View.VISIBLE
+        else findViewById<View>(R.id.tip_view).visibility = View.GONE
         if (isT2) {
             val readResult = File(T2_PATH).readText().toInt()
             status = if (readResult > 75) "HIGH"
