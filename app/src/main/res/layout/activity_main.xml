@@ -11,31 +11,56 @@
         android:background="#993c3f41"
         android:padding="12dp">
 
-        <ImageButton
-            android:id="@+id/btn_settings_time"
-            android:layout_width="37dp"
-            android:layout_height="37dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="25dp"
-            android:background="@drawable/selector_btn_settings_time"
-            android:button="@null" />
+            android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/btn_settings_help"
-            android:layout_width="37dp"
-            android:layout_height="37dp"
+            <View
+                android:id="@+id/time_view"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/btn_settings_time"
+                android:layout_width="37dp"
+                android:layout_height="37dp"
+                android:background="@drawable/selector_btn_settings_time"
+                android:button="@null" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_gravity="center"
             android:layout_marginTop="25dp"
-            android:background="@drawable/selector_btn_help"
-            android:button="@null" />
+            android:orientation="vertical">
+
+            <View
+                android:id="@+id/help_view"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/btn_settings_help"
+                android:layout_width="37dp"
+                android:layout_height="37dp"
+                android:background="@drawable/selector_btn_help"
+                android:button="@null" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:paddingBottom="10dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingBottom="50dp">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -60,6 +85,12 @@
             android:gravity="center"
             android:orientation="vertical">
 
+            <View
+                android:id="@+id/title_view"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/camping_lamp_title"
                 android:layout_width="wrap_content"
@@ -82,7 +113,14 @@
             android:layout_marginBottom="100dp"
             android:orientation="vertical">
 
+            <View
+                android:id="@+id/view"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:visibility="gone" />
+
             <LinearLayout
+                android:id="@+id/flash"
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
                 android:background="@drawable/camping_lamp_menu_item_bg"

@@ -7,9 +7,15 @@ import android.content.Context
 import android.content.Intent
 import android.os.BatteryManager
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.android.campinglight.App.Companion.P2PRO_PATH
+import com.android.campinglight.App.Companion.T2_PATH
+import com.android.campinglight.App.Companion.isP2Pro
+import com.android.campinglight.App.Companion.isT2
 import com.android.campinglight.App.Companion.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -25,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private var quarterButton: ImageButton? = null
     private var helpButton: ImageButton? = null
     private var timeButton: ImageButton? = null
+    private var flash: LinearLayout? = null
     private var status = ""
     private lateinit var alarmManager: AlarmManager
     private lateinit var intent: Intent
@@ -43,7 +50,8 @@ class MainActivity : AppCompatActivity() {
         if (level <= 15) {
             batteryLevel15 = true
             MainScope().launch(Dispatchers.IO) {
-                File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+                if (isT2) File(T2_PATH).write("0")
+                if (isP2Pro) File(P2PRO_PATH).write("0")
             }
             status = "OFF"
             showDialog(this@MainActivity, getString(R.string.tips), getString(R.string.batteryInfo))
@@ -85,6 +93,14 @@ class MainActivity : AppCompatActivity() {
         quarterButton = findViewById(R.id.btn_constant_quarter)
         helpButton = findViewById(R.id.btn_settings_help)
         timeButton = findViewById(R.id.btn_settings_time)
+        flash = findViewById(R.id.flash)
+        if (isT2) {
+            flash?.visibility = View.GONE
+            findViewById<View>(R.id.view).visibility = View.VISIBLE
+            findViewById<View>(R.id.title_view).visibility = View.VISIBLE
+            findViewById<View>(R.id.help_view).visibility = View.VISIBLE
+            findViewById<View>(R.id.time_view).visibility = View.VISIBLE
+        }
         sosButton?.setOnClickListener {
             if (batteryLevel15) toast(getString(R.string.batteryInfo), this)
             else {
@@ -120,13 +136,14 @@ class MainActivity : AppCompatActivity() {
         fullButton?.setOnClickListener {
             if (batteryLevel15) toast(getString(R.string.batteryInfo), this)
             else {
-                var result: Boolean
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+                var result = false
+                if (isT2) result = File(T2_PATH).write("0")
+                if (isP2Pro) result = File(P2PRO_PATH).write("0")
                 if (result) {
                     if (status == "HIGH") status = "OFF"
                     else {
-                        result =
-                            File("/sys/devices/platform/gftk_camplight/camplight_mode").write("3")
+                        if (isT2) result = File(T2_PATH).write("100")
+                        if (isP2Pro) result = File(P2PRO_PATH).write("3")
                         if (result) status = "HIGH"
                     }
                     updateUI(status)
@@ -136,13 +153,14 @@ class MainActivity : AppCompatActivity() {
         halfButton?.setOnClickListener {
             if (batteryLevel15) toast(getString(R.string.batteryInfo), this)
             else {
-                var result: Boolean
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+                var result = false
+                if (isT2) result = File(T2_PATH).write("0")
+                if (isP2Pro) result = File(P2PRO_PATH).write("0")
                 if (result) {
                     if (status == "NORMAL") status = "OFF"
                     else {
-                        result =
-                            File("/sys/devices/platform/gftk_camplight/camplight_mode").write("2")
+                        if (isT2) result = File(T2_PATH).write("50")
+                        if (isP2Pro) result = File(P2PRO_PATH).write("2")
                         if (result) status = "NORMAL"
                     }
                     updateUI(status)
@@ -152,13 +170,14 @@ class MainActivity : AppCompatActivity() {
         quarterButton?.setOnClickListener {
             if (batteryLevel15) toast(getString(R.string.batteryInfo), this)
             else {
-                var result: Boolean
-                result = File("/sys/devices/platform/gftk_camplight/camplight_mode").write("0")
+                var result = false
+                if (isT2) result = File(T2_PATH).write("0")
+                if (isP2Pro) result = File(P2PRO_PATH).write("0")
                 if (result) {
                     if (status == "LOW") status = "OFF"
                     else {
-                        result =
-                            File("/sys/devices/platform/gftk_camplight/camplight_mode").write("1")
+                        if (isT2) result = File(T2_PATH).write("25")
+                        if (isP2Pro) result = File(P2PRO_PATH).write("1")
                         if (result) status = "LOW"
                     }
                     updateUI(status)
@@ -193,7 +212,14 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun initView() {
-        status = File("/sys/devices/platform/gftk_camplight/camplight_mode").readText()
+        if (isT2) {
+            val readResult = File(T2_PATH).readText().toInt()
+            status = if (readResult > 75) "HIGH"
+            else if (readResult in 26..75) "NORMAL"
+            else if (readResult in 1..25) "LOW"
+            else "OFF"
+        }
+        if (isP2Pro) status = File(P2PRO_PATH).readText()
         updateUI(status, true)
     }
 
