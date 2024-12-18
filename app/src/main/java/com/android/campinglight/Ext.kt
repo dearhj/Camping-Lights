@@ -9,6 +9,9 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
+import com.android.campinglight.App.Companion.P2PRO_PATH
+import com.android.campinglight.App.Companion.T2_PATH
+import com.android.campinglight.App.Companion.isT2
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
@@ -106,9 +109,10 @@ fun toast(msg: String, context: Context) {
     toast?.show()
 }
 
-fun File.write(content: String): Boolean {
+fun writeStatus(content: String): Boolean {
     return try {
-        val writer = BufferedWriter(FileWriter(this, false))
+        val file = if (isT2) File(T2_PATH) else File(P2PRO_PATH)
+        val writer = BufferedWriter(FileWriter(file, false))
         writer.write(content)
         writer.flush()
         writer.close()
@@ -119,9 +123,10 @@ fun File.write(content: String): Boolean {
     }
 }
 
-fun File.readText(): String {
+fun readStatus(): String {
     return try {
-        val reader = BufferedReader(FileReader(this))
+        val file = if (isT2) File(T2_PATH) else File(P2PRO_PATH)
+        val reader = BufferedReader(FileReader(file))
         val stringBuilder = StringBuilder()
         var line: String?
         while (reader.readLine().also { line = it } != null) {
