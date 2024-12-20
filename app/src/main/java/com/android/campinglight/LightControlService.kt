@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.os.BatteryManager
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.android.campinglight.App.Companion.isT2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
@@ -38,7 +39,12 @@ class LightControlService : Service() {
                 val batteryValue =
                     batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: 0
                 changeStatus = "$batteryValue"
-                if (batteryValue <= 15) writeStatus("0")
+                if (batteryValue <= 15) {
+                    if (readStatus() != "0") {
+                        writeStatus("0")
+                        if (isT2) t2Timer("OFF")
+                    }
+                }
                 delay(60000)
             }
         }

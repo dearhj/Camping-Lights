@@ -2,7 +2,6 @@ package com.android.campinglight
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -16,8 +15,11 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.android.campinglight.App.Companion.alarmManager
+import com.android.campinglight.App.Companion.hasLight15Min
 import com.android.campinglight.App.Companion.isP2Pro
 import com.android.campinglight.App.Companion.isT2
+import com.android.campinglight.App.Companion.pendingIntentAll
 import com.android.campinglight.App.Companion.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -40,9 +42,6 @@ class MainActivity : AppCompatActivity() {
     private var buttonLand: LinearLayout? = null
     private var buttonPortrait: LinearLayout? = null
     private var status = ""
-    private lateinit var alarmManager: AlarmManager
-    private lateinit var intent: Intent
-    private lateinit var pendingIntent: PendingIntent
     private var batteryValue = 0
     private var batteryLevel15 = false
     private var batteryManager: BatteryManager? = null
@@ -51,8 +50,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        if (isP2Pro) requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT  //强制竖屏
-        window.navigationBarColor = Color.parseColor("#282E31")  //修改导航栏背景色
+        if (isP2Pro) requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        window.navigationBarColor = Color.parseColor("#282E31")
         batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         setContentView(R.layout.activity_main)
         val level = batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: 0
@@ -62,15 +61,11 @@ class MainActivity : AppCompatActivity() {
             status = "OFF"
             showDialog(this@MainActivity, getString(R.string.tips), getString(R.string.batteryInfo))
         }
-
-        alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-        intent = Intent(this, TimeReceiver::class.java)
-        pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         offFlag.observe(this) {
             if (it) {
                 offFlag.value = false
                 status = "OFF"
-                updateUI(status)
+                updateUI(status, isAutoClose = true)
             }
         }
 
@@ -81,7 +76,7 @@ class MainActivity : AppCompatActivity() {
                     batteryLevel15 = true
                     if (status != "OFF") {
                         status = "OFF"
-                        updateUI(status)
+                        updateUI(status, isAutoClose = true)
                         showDialog(
                             this@MainActivity,
                             getString(R.string.tips),
@@ -125,13 +120,17 @@ class MainActivity : AppCompatActivity() {
             showTipDialog(this, getString(R.string.help), getString(R.string.help_info))
         }
         timeButton?.setOnClickListener {
-            val time = sp?.getString("time", "")
-            showTimeDialog(this, "${if (time == "") "0" else time}") {
+            val time = sp?.getString("time", "") ?: "0"
+            showTimeDialog(this, time) {
                 sp?.edit()?.putString("time", it)?.apply()
-                alarmManager.cancel(pendingIntent)
+                alarmManager.cancel(pendingIntentAll)
                 if (it != "0" && status != "" && status != "OFF") {
                     val triggerAtMillis = System.currentTimeMillis() + 60000 * it.toInt()
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+                    alarmManager.setExact(
+                        AlarmManager.RTC_WAKEUP,
+                        triggerAtMillis,
+                        pendingIntentAll
+                    )
                 }
             }
         }
@@ -167,8 +166,19 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         "HIGH" -> {
-                            result = writeStatus("3")
-                            if (result) status = "HIGH"
+                            if (isT2) {
+                                if (hasLight15Min) {
+                                    toast(
+                                        "短时间内已经亮了15分钟，请稍后使用，否则可能导致设备损坏",
+                                        this
+                                    )
+                                }
+                                result = writeStatus("3")
+                                if (result) status = "HIGH"
+                            } else {
+                                result = writeStatus("3")
+                                if (result) status = "HIGH"
+                            }
                         }
 
                         "BLINK" -> {
@@ -187,7 +197,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun initView() {
         val mode = Settings.Secure.getInt(contentResolver, "navigation_mode")
         if (mode == 0) findViewById<View>(R.id.tip_view).visibility = View.VISIBLE
@@ -197,16 +206,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("ScheduleExactAlarm")
-    private fun updateUI(uiStatus: String, isInitView: Boolean = false) {
+    private fun updateUI(
+        uiStatus: String,
+        isInitView: Boolean = false,
+        isAutoClose: Boolean = false
+    ) {
         if (!isInitView) {
             if (uiStatus != "OFF") {
-                alarmManager.cancel(pendingIntent)
+                alarmManager.cancel(pendingIntentAll)
                 val time = sp?.getString("time", "")
                 if (time != "" && time != "0") {
                     val triggerAtMillis = System.currentTimeMillis() + 60000 * (time?.toInt() ?: 0)
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+                    alarmManager.setExact(
+                        AlarmManager.RTC_WAKEUP,
+                        triggerAtMillis,
+                        pendingIntentAll
+                    )
                 }
-            } else alarmManager.cancel(pendingIntent)
+            } else alarmManager.cancel(pendingIntentAll)
         }
         quarterButton?.setBackgroundResource(R.drawable.constant_light_quarter_default)
         halfButton?.setBackgroundResource(R.drawable.constant_light_half_default)
@@ -244,6 +261,7 @@ class MainActivity : AppCompatActivity() {
                 sosButtonLand?.setBackgroundResource(R.drawable.flash_sos_pressed)
             }
         }
+        if (isT2 && !isInitView && !isAutoClose)  t2Timer(uiStatus)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
