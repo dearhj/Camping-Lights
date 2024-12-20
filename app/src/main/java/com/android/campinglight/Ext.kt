@@ -114,6 +114,20 @@ fun setSendChangeString(ch: (str: String) -> Unit) {
     }
 }
 
+var dialogChange: Change? = null
+
+var dialogChangeStatus: String by Delegates.observable("") { _, _, new ->
+    dialogChange?.change(new)
+}
+
+fun setDialogChangeString(ch: () -> Unit) {
+    dialogChange = object : Change {
+        override fun change(string: String) {
+            ch()
+        }
+    }
+}
+
 var toast: Toast? = null
 fun toast(msg: String, context: Context) {
     if (toast != null) toast?.cancel()

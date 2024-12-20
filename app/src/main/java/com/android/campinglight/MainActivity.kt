@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity() {
                             if (isT2) {
                                 if (hasLight15Min) {
                                     toast(
-                                        "短时间内已经亮了15分钟，请稍后使用，否则可能导致设备损坏",
+                                        getString(R.string.more_15_tips_open_again),
                                         this
                                     )
                                 }

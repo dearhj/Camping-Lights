@@ -21,4 +21,7 @@
     <string name="time_15">15分钟</string>
     <string name="time_30">30分钟</string>
     <string name="time_60">60分钟</string>
+    <string name="more_15">露营灯在短时间内已经全亮运行超过15分钟，为避免设备温度过高，露营灯已关闭</string>
+    <string name="more_15_tips">提示</string>
+    <string name="more_15_tips_open_again">短时间内已经全亮运行了15分钟，请注意设备温度</string>
 </resources>

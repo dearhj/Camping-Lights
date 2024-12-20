@@ -21,4 +21,7 @@
     <string name="time_15">15 Minutes</string>
     <string name="time_30">30 Minutes</string>
     <string name="time_60">60 Minutes</string>
+    <string name="more_15">The camping lights have been fully on and running for more than 15 minutes in a short period of time. To avoid excessive equipment temperature, the camping lights have been turned off</string>
+    <string name="more_15_tips">Tip</string>
+    <string name="more_15_tips_open_again">It has been running for 15 minutes with full brightness in a short period of time. Please pay attention to the device temperature</string>
 </resources>

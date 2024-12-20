@@ -1,5 +1,6 @@
 package com.android.campinglight
 
+import android.app.AlertDialog
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,6 +10,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.BatteryManager
 import android.os.IBinder
+import android.view.View
+import android.view.WindowManager
+import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import com.android.campinglight.App.Companion.isT2
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +51,24 @@ class LightControlService : Service() {
                 }
                 delay(60000)
             }
+        }
+        setDialogChangeString { showDialog() }
+    }
+
+
+    private fun showDialog() {
+        try {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle(getString(R.string.more_15_tips))
+            val view = View.inflate(this, R.layout.shutdown_dialog, null)
+            val tips = view.findViewById<TextView>(R.id.tips)
+            tips.text = getString(R.string.more_15)
+            builder.setView(view)
+            dialog = builder.create()
+            dialog?.window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+            dialog?.show()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

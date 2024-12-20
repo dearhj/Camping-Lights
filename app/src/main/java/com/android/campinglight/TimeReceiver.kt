@@ -19,15 +19,20 @@ class TimeReceiver : BroadcastReceiver() {
             }
 
             "com.light.HIGH_BRIGHTNESS" -> {
-                //高亮已经亮了15分钟
-                if(readStatus() != "0") {
-                    val result = writeStatus("0")
-                    if (result) offFlag.value = true
-                    if (isT2) t2Timer("OFF")
-                    //高亮超过十五分钟，用户再次点亮会再次计时15分钟
-                    sp?.edit()?.putLong("alreadyHighTime", 0L)?.apply()
-                    sp?.edit()?.putBoolean("highTimerStarted", false)?.apply()
-                    hasLight15Min = true   //这个标志位的作用是，当亮15分钟后，再次点亮，如果间隔较短。则弹出提示
+                try {
+                    //高亮已经亮了15分钟
+                    if (readStatus() != "0") {
+                        val result = writeStatus("0")
+                        if (result) offFlag.value = true
+                        if (isT2) t2Timer("OFF")
+                        dialogChangeStatus = System.currentTimeMillis().toString()
+                        //高亮超过十五分钟，用户再次点亮会再次计时15分钟
+                        sp?.edit()?.putLong("alreadyHighTime", 0L)?.apply()
+                        sp?.edit()?.putBoolean("highTimerStarted", false)?.apply()
+                        hasLight15Min = true   //这个标志位的作用是，当亮15分钟后，再次点亮，如果间隔较短。则弹出提示
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
 
